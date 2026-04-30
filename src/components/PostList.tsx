@@ -1,7 +1,6 @@
 import React from 'react'
 import { Post } from '../types'
-import { readingTime, formatTime } from 'postkit-reading-time'
-import { formatRelativeDate, statusToLabel } from '../workarounds'
+import PostCard from './PostCard'
 
 interface PostListProps {
   posts: Post[]
@@ -12,32 +11,29 @@ interface PostListProps {
 
 export default function PostList({ posts, onEdit, onPreview, onDelete }: PostListProps) {
   if (posts.length === 0) {
-    return <p>No posts found.</p>
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center
+                      rounded-xl border border-dashed border-white/10 bg-white/[0.02]">
+        <div className="text-5xl mb-4 text-slate-600">·</div>
+        <h2 className="text-lg font-semibold text-white">No posts found</h2>
+        <p className="mt-2 text-sm text-slate-400 max-w-sm">
+          Adjust your search or filters, or create a new post to get started.
+        </p>
+      </div>
+    )
   }
 
   return (
-    <ul>
-      {posts.map(post => {
-        const minutes = readingTime(post.body)
-        const readTime = formatTime(minutes)
-        const date = formatRelativeDate(post.updatedAt)
-        const statusLabel = statusToLabel(post.status)
-
-        return (
-          <li key={post.id}>
-            <strong>{post.title || 'Untitled'}</strong>
-            <span> — {statusLabel}</span>
-            <span> — {readTime}</span>
-            <span> — {date}</span>
-            <div>
-              {post.tags.map(tag => <span key={tag}>[{tag}] </span>)}
-            </div>
-            <button onClick={() => onPreview(post)}>Preview</button>
-            <button onClick={() => onEdit(post)}>Edit</button>
-            <button onClick={() => { if (window.confirm('Delete this post?')) onDelete(post.id) }}>Delete</button>
-          </li>
-        )
-      })}
-    </ul>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {posts.map(post => (
+        <PostCard
+          key={post.id}
+          post={post}
+          onEdit={onEdit}
+          onPreview={onPreview}
+          onDelete={onDelete}
+        />
+      ))}
+    </div>
   )
 }

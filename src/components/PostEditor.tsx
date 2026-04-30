@@ -2,16 +2,25 @@ import React, { useState, useEffect } from 'react'
 import { Post, PostStatus } from '../types'
 import { getPostValidationErrors } from 'postkit-validation-library'
 import { parseTags, removeDuplicateTags } from 'postkit-tag'
-import { createSlugFromTitle, makeUniqueSlug } from 'postkit-slug'
 
 interface PostEditorProps {
   post: Post | null
-  allPosts: Post[]
   onSave: (post: Post) => void
   onCancel: () => void
 }
 
-export default function PostEditor({ post, allPosts, onSave, onCancel }: PostEditorProps) {
+const labelClasses = 'block text-sm font-medium text-slate-300 mb-1.5'
+const inputClasses =
+  'w-full h-10 px-3 rounded-md border border-white/15 bg-white/5 text-sm text-white ' +
+  'placeholder:text-slate-500 backdrop-blur ' +
+  'focus:outline-none focus:ring-2 focus:ring-yellow-300/40 focus:border-yellow-300/60'
+const selectInputClasses = `dark-select ${inputClasses}`
+const textareaClasses =
+  'w-full px-3 py-2 rounded-md border border-white/15 bg-white/5 text-sm text-white ' +
+  'placeholder:text-slate-500 backdrop-blur ' +
+  'focus:outline-none focus:ring-2 focus:ring-yellow-300/40 focus:border-yellow-300/60'
+
+export default function PostEditor({ post, onSave, onCancel }: PostEditorProps) {
   const [title, setTitle] = useState(post?.title ?? '')
   const [body, setBody] = useState(post?.body ?? '')
   const [author, setAuthor] = useState(post?.author ?? '')
@@ -34,19 +43,6 @@ export default function PostEditor({ post, allPosts, onSave, onCancel }: PostEdi
   const handleSave = () => {
     const tags = removeDuplicateTags(parseTags(tagInput))
     const now = new Date().toISOString()
-
-    // Generate a unique slug from title
-    let slug = ''
-    try {
-      const base = createSlugFromTitle(title)
-      const otherSlugs = allPosts
-        .filter(p => p.id !== post?.id)
-        .map(p => { try { return createSlugFromTitle(p.title) } catch { return '' } })
-        .filter(Boolean)
-      slug = makeUniqueSlug(base, otherSlugs)
-    } catch {
-      // title may be empty — validation will catch it
-    }
 
     const fullPost: Post = {
       id: post?.id ?? crypto.randomUUID(),
@@ -71,52 +67,117 @@ export default function PostEditor({ post, allPosts, onSave, onCancel }: PostEdi
   }
 
   return (
-    <div>
-      <button onClick={onCancel}>← Back</button>
-      <h2>{post ? 'Edit Post' : 'New Post'}</h2>
+    <div className="max-w-3xl mx-auto">
+      <button
+        onClick={onCancel}
+        className="text-sm text-slate-400 hover:text-white transition-colors mb-4"
+      >
+        ← Back
+      </button>
+
+      <h2 className="text-2xl font-bold text-white mb-6">
+        {post ? 'Edit Post' : 'New Post'}
+      </h2>
 
       {errors.length > 0 && (
-        <div>
-          {errors.map((e, i) => <p key={i} style={{ color: 'red' }}>⚠ {e}</p>)}
+        <div className="mb-6 rounded-lg border border-red-500/40 bg-red-500/10 backdrop-blur p-4">
+          <p className="text-sm font-semibold text-red-200 mb-1">
+            Please fix the following:
+          </p>
+          <ul className="list-disc list-inside space-y-0.5">
+            {errors.map((e, i) => (
+              <li key={i} className="text-sm text-red-200/90">{e}</li>
+            ))}
+          </ul>
         </div>
       )}
 
-      <div>
-        <label>Title *</label>
-        <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Post title" />
+      <div className="bg-slate-900/60 backdrop-blur rounded-lg shadow-2xl shadow-black/40 border border-white/10 p-6 space-y-5">
+        <div>
+          <label className={labelClasses}>Title <span className="text-red-400">*</span></label>
+          <input
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            placeholder="Post title"
+            className={inputClasses}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label className={labelClasses}>Author <span className="text-red-400">*</span></label>
+            <input
+              value={author}
+              onChange={e => setAuthor(e.target.value)}
+              placeholder="Author name"
+              className={inputClasses}
+            />
+          </div>
+
+          <div>
+            <label className={labelClasses}>Category</label>
+            <input
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+              placeholder="Category"
+              className={inputClasses}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label className={labelClasses}>Status</label>
+            <select
+              value={status}
+              onChange={e => setStatus(e.target.value as PostStatus)}
+              className={selectInputClasses}
+            >
+              <option value="draft">Draft</option>
+              <option value="review">In Review</option>
+              <option value="published">Published</option>
+            </select>
+          </div>
+
+          <div>
+            <label className={labelClasses}>Tags (comma separated)</label>
+            <input
+              value={tagInput}
+              onChange={e => setTagInput(e.target.value)}
+              placeholder="e.g. typescript, react"
+              className={inputClasses}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className={labelClasses}>Body <span className="text-red-400">*</span></label>
+          <textarea
+            value={body}
+            onChange={e => setBody(e.target.value)}
+            placeholder="Write your post…"
+            rows={14}
+            className={textareaClasses}
+          />
+        </div>
       </div>
 
-      <div>
-        <label>Author *</label>
-        <input value={author} onChange={e => setAuthor(e.target.value)} placeholder="Author name" />
+      <div className="mt-6 flex justify-end gap-3">
+        <button
+          onClick={onCancel}
+          className="h-10 px-4 rounded-md border border-white/15 bg-white/5 text-sm
+                     font-medium text-white hover:bg-white/10 transition-colors backdrop-blur"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleSave}
+          className="h-10 px-4 rounded-md bg-white text-slate-900 text-sm
+                     font-semibold hover:bg-slate-100 transition-colors shadow-lg shadow-black/30"
+        >
+          Save Post
+        </button>
       </div>
-
-      <div>
-        <label>Category</label>
-        <input value={category} onChange={e => setCategory(e.target.value)} placeholder="Category" />
-      </div>
-
-      <div>
-        <label>Status</label>
-        <select value={status} onChange={e => setStatus(e.target.value as PostStatus)}>
-          <option value="draft">Draft</option>
-          <option value="review">Review</option>
-          <option value="published">Published</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Tags (comma separated)</label>
-        <input value={tagInput} onChange={e => setTagInput(e.target.value)} placeholder="e.g. typescript, react" />
-      </div>
-
-      <div>
-        <label>Body *</label>
-        <textarea value={body} onChange={e => setBody(e.target.value)} placeholder="Write your post..." rows={12} />
-      </div>
-
-      <button onClick={onCancel}>Cancel</button>
-      <button onClick={handleSave}>Save Post</button>
     </div>
   )
 }

@@ -83,21 +83,46 @@ export default function App() {
     return result
   }
 
+  const secondaryBtn =
+    'inline-flex items-center h-10 px-4 rounded-md border border-white/15 ' +
+    'bg-white/5 text-sm font-medium text-white hover:bg-white/10 ' +
+    'transition-colors cursor-pointer backdrop-blur'
+
+  const primaryBtn =
+    'inline-flex items-center h-10 px-4 rounded-md bg-white text-slate-900 ' +
+    'text-sm font-semibold hover:bg-slate-100 transition-colors shadow-lg shadow-black/30'
+
   return (
-    <div>
-      <header>
-        <h1>PostKit</h1>
-        <div>
-          <button onClick={handleExport}>Export</button>
-          <label>
-            Import
-            <input type="file" accept=".json" onChange={handleImport} style={{ display: 'none' }} />
-          </label>
-          <button onClick={() => { setSelectedPost(null); setView('editor') }}>+ New Post</button>
+    <div className="min-h-full">
+      <header className="sticky top-0 z-30 bg-slate-950/70 backdrop-blur-xl border-b border-white/10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <h1 className="text-xl font-bold tracking-tight text-white">
+            <span className="text-yellow-300">Post</span>Kit
+          </h1>
+          <div className="flex items-center gap-2">
+            <button onClick={handleExport} className={secondaryBtn}>
+              Export
+            </button>
+            <label className={secondaryBtn}>
+              Import
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleImport}
+                className="hidden"
+              />
+            </label>
+            <button
+              onClick={() => { setSelectedPost(null); setView('editor') }}
+              className={primaryBtn}
+            >
+              + New Post
+            </button>
+          </div>
         </div>
       </header>
 
-      <main>
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {view === 'list' && (
           <>
             <Toolbar
@@ -124,7 +149,6 @@ export default function App() {
         {view === 'editor' && (
           <PostEditor
             post={selectedPost}
-            allPosts={posts}
             onSave={handleSavePost}
             onCancel={() => setView('list')}
           />
