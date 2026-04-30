@@ -51,6 +51,11 @@
       "last 1 safari version"
     ]
   },
+  "jest": {
+    "transformIgnorePatterns": [
+      "/node_modules/(?!(postkit-reading-time|postkit-filter-sort|postkit-tag|postkit-storage-lib|postkit-validation-library|postkit-search-library|postkit-date-status-display|postkit-excerpt|postkit-slug|postkit-ui-component-library)/)"
+    ]
+  },
   "devDependencies": {
     "autoprefixer": "^10.5.0",
     "postcss": "^8.5.13",
