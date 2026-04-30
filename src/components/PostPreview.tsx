@@ -1,8 +1,7 @@
 import React from 'react'
 import { Post } from '../types'
-import { createExcerpt } from 'postkit-excerpt'
+import { createExcerpt, formatDate, statusToLabel } from '../workarounds'
 import { readingTime, formatTime } from 'postkit-reading-time'
-import { formatDate, statusToLabel } from 'postkit-date-status-display'
 import { createSlugFromTitle } from 'postkit-slug'
 
 interface PostPreviewProps {
@@ -18,8 +17,8 @@ export default function PostPreview({ post, onEdit, onBack }: PostPreviewProps) 
   const excerpt = createExcerpt(post.body, 160)
   const minutes = readingTime(post.body)
   const readTime = formatTime(minutes)
-  const date = formatDate(post.updatedAt) ?? formatDate(post.createdAt) ?? '—'
-  const statusLabel = statusToLabel(post.status) ?? post.status
+  const date = formatDate(post.updatedAt)
+  const statusLabel = statusToLabel(post.status)
 
   return (
     <div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Post, PostStatus } from './types'
 import { loadPosts, savePosts, exportPosts, importPosts } from 'postkit-storage-lib'
-import { searchPosts } from 'postkit-search-library'
+import { searchPosts } from './workarounds'
 import { filterByStatus, filterByTag, sortByDate, sortByTitle } from 'postkit-filter-sort'
 import PostList from './components/PostList'
 import PostEditor from './components/PostEditor'
@@ -23,13 +23,11 @@ export default function App() {
   const [sortField, setSortField] = useState<'date' | 'title'>('date')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
 
-  // Load posts on mount
   useEffect(() => {
     const loaded = loadPosts(STORAGE_KEY)
     setPosts(loaded)
   }, [])
 
-  // Save whenever posts change
   useEffect(() => {
     savePosts(STORAGE_KEY, posts)
   }, [posts])

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Post } from '../types'
 import { readingTime, formatTime } from 'postkit-reading-time'
-import { formatRelativeDate, statusToLabel } from 'postkit-date-status-display'
+import { formatRelativeDate, statusToLabel } from '../workarounds'
 
 interface PostListProps {
   posts: Post[]
@@ -20,8 +20,8 @@ export default function PostList({ posts, onEdit, onPreview, onDelete }: PostLis
       {posts.map(post => {
         const minutes = readingTime(post.body)
         const readTime = formatTime(minutes)
-        const date = formatRelativeDate(post.updatedAt) ?? formatRelativeDate(post.createdAt) ?? ''
-        const statusLabel = statusToLabel(post.status) ?? post.status
+        const date = formatRelativeDate(post.updatedAt)
+        const statusLabel = statusToLabel(post.status)
 
         return (
           <li key={post.id}>
